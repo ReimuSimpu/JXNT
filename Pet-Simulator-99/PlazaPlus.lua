@@ -137,42 +137,57 @@ local function RemoveSuffix(Amount)
 end
 
 local function RemoveSuffix(Amount)
-	local Number, Suffix = Amount:gsub("%a", ""), Amount:match("%a")	
-	local Type = table.find(SuffixesUpper, Suffix) or table.find(SuffixesLower, Suffix) or 0
-	return tonumber(Number) * math.pow(10, Type * 3)
+    if not Amount or Amount == "" then return 0 end
+    if type(Amount) == "number" then return Amount end
+    local Number, Suffix = Amount:gsub("%a", ""), Amount:match("%a")	
+    local Type = table.find(SuffixesUpper, Suffix) or table.find(SuffixesLower, Suffix) or 0
+    return tonumber(Number) * math.pow(10, Type * 3)
 end
 
 local UI = {}
 local function SetUISettings(Type)
     for Name, Params in next, Type do
         if type(Params) ~= "table" then continue end
+        
         if Name == "Switch Servers" and Params.Active then
             UI["Switch Servers"] = true
-            UI["Teleport Delay"] = Params.SecondDelay or Params.MinuteDelay and Params.MinuteDelay*60
-            UI["Only Pro"] = Params.OnlyPRO
+            local Delay = Params.SecondDelay or (Params.MinuteDelay and Params.MinuteDelay * 60) or 300
+            UI["Teleport Delay"] = Delay
+            UI["Only Pro"] = Params.OnlyPRO or false
         end
+        
         if Name == "Webhook" and Params.Active and Params.URL ~= "" then
             UI["URL"] = Params.URL
         end
+        
         if Name == "Kill Switch" then
             for InsideName, Value in next, Params do
                 if not Value then continue end
                 if InsideName:find("Switch To") then 
                     UI["Switch To "..InsideName:split("To ")[2]] = Value
                 elseif InsideName:find("Minutes Timer") then
-                    UI["Minutes Timer"] = tonumber(InsideName:split(" Minutes")[1])*60
+                    local minutes = tonumber(InsideName:match("^(%d+)"))
+                    UI["Minutes Timer"] = (minutes or 0) * 60
                 elseif InsideName:find("Diamonds Hit") then
-                    UI["Diamonds Hit"] = RemoveSuffix(InsideName:split("Diamonds Hit: ")[2])
+                    local amountStr = InsideName:match("Diamonds Hit:%s*(.+)$")
+                    if amountStr then
+                        UI["Diamonds Hit"] = RemoveSuffix(amountStr)
+                    end
                 else
                     UI[InsideName] = Value
                 end
             end
         end
+        
         if Name == "Diamonds Sendout" and Params.Active then
-            UI["Diamonds Sendout"] = {Username = Params.Username, Amount = RemoveSuffix(Params.Amount)}
+            UI["Diamonds Sendout"] = {
+                Username = Params.Username or "",
+                Amount = Params.Amount and RemoveSuffix(Params.Amount) or 0
+            }
         end
     end
 end
+
 if (Settings.Sniper and Settings.Sniper.Active) and (Settings.Seller and Settings.Seller.Active) and not (FileSettings.Sniper or FileSettings.Seller) then
     FileSettings.Sniper = true
 end
@@ -599,6 +614,7 @@ end
 
 
 local function CalculatePercent(GlobalRAP, ItemPrice)
+    if not GlobalRAP or not ItemPrice then return 0 end
     local WholeValue = ((ItemPrice - GlobalRAP) / GlobalRAP) * 100
     WholeValue = math.floor(WholeValue * 2 + 0.5) / 2
     return WholeValue < 0 and math.abs(WholeValue) or WholeValue * -1
