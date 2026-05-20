@@ -1,3 +1,5 @@
+
+
 local timer = tick()
 if not game:IsLoaded() then 
     game.Loaded:Wait()
@@ -166,7 +168,12 @@ local function SetUISettings(Type)
                 if InsideName:find("Switch To") then 
                     UI["Switch To "..InsideName:split("To ")[2]] = Value
                 elseif InsideName:find("Minutes Timer") then
-                    local minutes = tonumber(InsideName:match("^(%d+)"))
+                    local minutes
+                    if type(Value) == "number" then
+                        minutes = Value
+                    else
+                        minutes = tonumber(tostring(Value):match("^(%d+)"))
+                    end
                     UI["Minutes Timer"] = (minutes or 0) * 60
                 elseif InsideName:find("Diamonds Hit") then
                     local amountStr = InsideName:match("Diamonds Hit:%s*(.+)$")
