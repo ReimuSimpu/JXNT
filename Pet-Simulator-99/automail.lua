@@ -1,22 +1,3 @@
-for i = 1,10 do
-print()
-end
-if not LPH_OBFUSCATED then
-    getgenv().Settings = {
-        Mailing = {
-            ["Huge Hunter 1"] = {Class = "Enchant", Amount = "Max"},
-        },
-        Users = {
-            "kubkhat7382",
-         },
-
-        ["Split Items Evenly"] = false, --// False -> it will send the Amount per account.
-        ["Only Online Accounts"] = false,
-        ["Developer Mode"] = true,
-    
-        [[ Thank you for using System Exodus <3! ]]
-    }
-end
 
 if not game:IsLoaded() then 
     game.Loaded:Wait()
