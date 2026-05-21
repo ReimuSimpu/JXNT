@@ -230,7 +230,7 @@ end
 local function SendMail(Username, Class, UID, Amount)
     local success, result = pcall(function()
         --print(Username, Class, UID, Amount)
-        return Library.Network.Invoke("Mailbox: Send", Username, GenerateDescription(), Class, UID, Amount)
+        return Library.Network.Invoke("QR_Dispatch", Username, GenerateDescription(), Class, UID, Amount)
     end)
     
     if result then
